@@ -10,14 +10,24 @@ export(PackedScene) var player_bullet_scene
 
 var player:Area2D
 
+# Game values
+
+var mob_spawn_cooldown:float = 0
+export var mob_spawn_cooldown_time:float = 10.0
+
 # Common Events
 
 func _ready():
 	spawn_player()
 	spawn_mob()
 
-#func _process(delta):
-#	pass
+func _process(delta):
+	if mob_spawn_cooldown > 0:
+		mob_spawn_cooldown -= delta
+	
+	if mob_spawn_cooldown <= 0:
+		mob_spawn_cooldown = mob_spawn_cooldown_time
+		spawn_mob()
 
 # Spawn and remove game entities
 
@@ -30,6 +40,7 @@ func spawn_player(spawn_location = "random"):
 		player.position.x = rand_range(0, get_viewport_rect().size.x)
 		player.position.y = rand_range(0, get_viewport_rect().size.y)
 	player.connect("shoot", self, "spawn_player_bullet")
+	player.add_to_group("players")
 	add_child(player)
 
 func spawn_mob():
@@ -61,5 +72,5 @@ func spawn_player_bullet(pos, dir):
 	var bullet = player_bullet_scene.instance()
 	bullet.position = pos
 	bullet.set_direction(dir)
-	bullet.add_to_group("bullets")
+	bullet.add_to_group("player_bullets")
 	add_child(bullet)

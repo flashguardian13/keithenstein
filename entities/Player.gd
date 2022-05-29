@@ -56,3 +56,7 @@ func process_shooting(delta):
 	if Input.is_action_pressed("ui_select") && shot_cooldown <= 0:
 		shot_cooldown = shot_cooldown_time
 		emit_signal("shoot", position, facing)
+
+func _on_area_shape_entered(area_rid, area:Area2D, area_shape_index, local_shape_index):
+	if area.is_in_group("mobs"):
+		print("player hit mob")

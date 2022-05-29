@@ -21,3 +21,6 @@ func _physics_process(delta):
 func set_direction(dir):
 	velocity = dir * speed
 
+func _on_area_shape_entered(area_rid, area, area_shape_index, local_shape_index):
+	if area.is_in_group("mobs"):
+		queue_free()

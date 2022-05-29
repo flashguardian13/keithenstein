@@ -38,3 +38,9 @@ func _physics_process(delta):
 	position += move
 	position.x = clamp(position.x, 0, get_viewport_rect().size.x)
 	position.y = clamp(position.y, 0, get_viewport_rect().size.y)
+
+func _on_area_shape_entered(area_rid, area, area_shape_index, local_shape_index):
+	if area.is_in_group("players"):
+		print("mob hit player")
+	if area.is_in_group("player_bullets"):
+		queue_free()
