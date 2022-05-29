@@ -14,19 +14,35 @@ var player:KinematicBody2D
 # Game values
 
 var mob_spawn_cooldown:float = 0
-export var mob_spawn_cooldown_time:float = 10.0
+export var mob_spawn_cooldown_time:float = 1.0
+var flooding_cooldown:float = 0
+export var flooding_cooldown_time:float = 10.0
 var island_rows:int = 6
 var island_columns:int = 10
+var flood_map
+
+# Helpers
+
+func column_width():
+	return get_viewport_rect().size.x / island_columns
+
+func row_width():
+	return get_viewport_rect().size.y / island_rows
 
 # Common Events
 
 func _ready():
+	flooding_cooldown = flooding_cooldown_time
+	
+	if flood_map == null:
+		flood_map = []
+		for fy in island_rows:
+			var row = []
+			for fx in island_columns:
+				row.push_back(false)
+			flood_map.push_back(row)
+			
 	spawn_player()
-	spawn_mob()
-	spawn_water(0, 3)
-	spawn_water(1, 2)
-	spawn_water(2, 1)
-	spawn_water(3, 0)
 
 func _process(delta):
 	if mob_spawn_cooldown > 0:
@@ -35,6 +51,13 @@ func _process(delta):
 	if mob_spawn_cooldown <= 0:
 		mob_spawn_cooldown = mob_spawn_cooldown_time
 		spawn_mob()
+	
+	if flooding_cooldown > 0:
+		flooding_cooldown -= delta
+	
+	if flooding_cooldown <= 0:
+		flooding_cooldown = flooding_cooldown_time
+		flood_island()
 
 # Spawn and remove game entities
 
@@ -82,17 +105,40 @@ func spawn_player_bullet(pos, dir):
 	bullet.add_to_group("player_bullets")
 	add_child(bullet)
 
-func spawn_water(row, col):
+func spawn_water(fx, fy):
 	var water:StaticBody2D = water_scene.instance()
-	water.position.x = (col + 0.5) * column_width()
-	water.position.y = (row + 0.5) * row_width()
+	water.position.x = (fx + 0.5) * column_width()
+	water.position.y = (fy + 0.5) * row_width()
 	water.z_index = -1
 	water.fit_to(column_width(), row_width())
 	water.add_to_group("water")
 	add_child(water)
+	flood_map[fy][fx] = true
 
-func column_width():
-	return get_viewport_rect().size.x / island_columns
+# Game Events
 
-func row_width():
-	return get_viewport_rect().size.y / island_rows
+func can_flood(fx, fy):
+	# Can always flood around the edges
+	if fx == 0 || fx == island_columns - 1 || fy == 0 || fy == island_rows - 1:
+		return true
+	
+	# Cannot flood if already flooded
+	if flood_map[fy][fx]:
+		return false
+	
+	# Can flood if adjacent to another flooded chunk
+	if flood_map[fy-1][fx] || flood_map[fy+1][fx] || flood_map[fy][fx-1] || flood_map[fy][fx+1]:
+		return true
+	
+	# Otherwise, cannot flood
+	return false
+
+func flood_island():
+	var floodable_chunks = []
+	for fy in island_rows:
+		for fx in island_columns:
+			if can_flood(fx, fy):
+				floodable_chunks.push_back([fx, fy])
+	
+	var chunk = floodable_chunks[randi() % floodable_chunks.size()]
+	spawn_water(chunk[0], chunk[1])
