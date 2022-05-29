@@ -19,6 +19,8 @@ config/icon="res://icon.png"
 2d_physics/layer_1="Player"
 2d_physics/layer_2="PlayerBullets"
 2d_physics/layer_3="Mobs"
+2d_physics/layer_4="Water"
+2d_physics/layer_5="PlayerPhysical"
 
 [physics]
 

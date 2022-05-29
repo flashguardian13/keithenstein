@@ -5,21 +5,28 @@ extends Node2D
 export(PackedScene) var player_scene
 export(PackedScene) var mob_scene
 export(PackedScene) var player_bullet_scene
+export(PackedScene) var water_scene
 
 # Game entities
 
-var player:Area2D
+var player:KinematicBody2D
 
 # Game values
 
 var mob_spawn_cooldown:float = 0
 export var mob_spawn_cooldown_time:float = 10.0
+var island_rows:int = 6
+var island_columns:int = 10
 
 # Common Events
 
 func _ready():
 	spawn_player()
 	spawn_mob()
+	spawn_water(0, 3)
+	spawn_water(1, 2)
+	spawn_water(2, 1)
+	spawn_water(3, 0)
 
 func _process(delta):
 	if mob_spawn_cooldown > 0:
@@ -44,7 +51,7 @@ func spawn_player(spawn_location = "random"):
 	add_child(player)
 
 func spawn_mob():
-	var mob = mob_scene.instance()
+	var mob:Area2D = mob_scene.instance()
 	
 	var spawn_x = rand_range(0, get_viewport().size.x)
 	var spawn_y = rand_range(0, get_viewport().size.y)
@@ -69,8 +76,23 @@ func spawn_mob():
 	add_child(mob)
 
 func spawn_player_bullet(pos, dir):
-	var bullet = player_bullet_scene.instance()
+	var bullet:Area2D = player_bullet_scene.instance()
 	bullet.position = pos
 	bullet.set_direction(dir)
 	bullet.add_to_group("player_bullets")
 	add_child(bullet)
+
+func spawn_water(row, col):
+	var water:StaticBody2D = water_scene.instance()
+	water.position.x = (col + 0.5) * column_width()
+	water.position.y = (row + 0.5) * row_width()
+	water.z_index = -1
+	water.fit_to(column_width(), row_width())
+	water.add_to_group("water")
+	add_child(water)
+
+func column_width():
+	return get_viewport_rect().size.x / island_columns
+
+func row_width():
+	return get_viewport_rect().size.y / island_rows

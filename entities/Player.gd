@@ -1,4 +1,4 @@
-extends Area2D
+extends KinematicBody2D
 
 # Attributes
 
@@ -44,8 +44,7 @@ func update_facing():
 	return move_dir
 	
 func process_movement(move_dir, delta):
-	var move = move_dir * speed * delta
-	position += move
+	var actual:Vector2  = move_and_slide(move_dir * speed)
 	position.x = clamp(position.x, 0, get_viewport_rect().size.x)
 	position.y = clamp(position.y, 0, get_viewport_rect().size.y)
 
