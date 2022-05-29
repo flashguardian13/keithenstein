@@ -4,6 +4,7 @@ extends Node2D
 
 export(PackedScene) var player_scene
 export(PackedScene) var mob_scene
+export(PackedScene) var player_bullet_scene
 
 # Game entities
 
@@ -28,6 +29,7 @@ func spawn_player(spawn_location = "random"):
 	else:
 		player.position.x = rand_range(0, get_viewport_rect().size.x)
 		player.position.y = rand_range(0, get_viewport_rect().size.y)
+	player.connect("shoot", self, "spawn_player_bullet")
 	add_child(player)
 
 func spawn_mob():
@@ -52,4 +54,12 @@ func spawn_mob():
 	mob.position.x = spawn_x
 	mob.position.y = spawn_y
 	
+	mob.add_to_group("mobs")
 	add_child(mob)
+
+func spawn_player_bullet(pos, dir):
+	var bullet = player_bullet_scene.instance()
+	bullet.position = pos
+	bullet.set_direction(dir)
+	bullet.add_to_group("bullets")
+	add_child(bullet)

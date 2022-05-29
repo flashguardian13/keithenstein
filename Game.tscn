@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Game.gd" type="Script" id=1]
 [ext_resource path="res://entities/Player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://entities/Mob.tscn" type="PackedScene" id=3]
+[ext_resource path="res://entities/PlayerBullet.tscn" type="PackedScene" id=4]
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 1 )
 player_scene = ExtResource( 2 )
 mob_scene = ExtResource( 3 )
+player_bullet_scene = ExtResource( 4 )
